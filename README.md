@@ -6,10 +6,11 @@ Todo es local: no se envía nada a ningún servidor.
 
 ## Instalar
 
-1. Cloná el repo y corré `npm install` y `npm run vendor` (copia pdf.js y la tipografía
-   dentro de `extension/vendor`).
+No hace falta instalar nada más: todo viene en el repo.
+
+1. Descargá el repo: botón verde **Code → Download ZIP**, y descomprimilo.
 2. Abrí `chrome://extensions`, activá **Modo de desarrollador** y tocá **Cargar descomprimida**.
-3. Elegí la carpeta `extension/`.
+3. Elegí la carpeta `extension/` del zip descomprimido.
 4. Opcional, recomendado: en **Detalles** de la extensión activá **Permitir acceso a URLs de archivo**.
    Así el visor lee el archivo que bajaste directo del disco; sin eso, lo vuelve a pedir a la URL
    original (falla con archivos detrás de un login o generados al vuelo).
@@ -28,6 +29,11 @@ Todo es local: no se envía nada a ningún servidor.
 Leer muestra el texto del PDF en pantallas: corta donde deja de entrar en la vista, sin respetar
 las páginas del PDF, y se pasa con el paginador de abajo. En imágenes y PDF escaneados, "Ver"
 muestra la página plana y se desplaza con la rueda.
+
+## Para desarrollar
+
+`npm install` y `npm run vendor` vuelven a copiar pdf.js y la tipografía dentro de
+`extension/vendor` (solo hace falta si actualizás esas librerías).
 
 ## Probar
 
