@@ -4,6 +4,10 @@ Extensión de Chrome que, al terminar de descargar un PDF o una imagen, congela 
 oscurecida y te levanta el archivo como un objeto que podés girar, mirar de cerca y leer.
 Todo es local: no se envía nada a ningún servidor.
 
+![Inspeccionando un PDF: la página se oscurece y el papel queda de frente](docs/inspeccionar.jpg)
+
+![Leyendo: el texto del PDF en pantallas, con paginador](docs/leer.jpg)
+
 ## Instalar
 
 No hace falta instalar nada más: todo viene en el repo.
