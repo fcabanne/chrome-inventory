@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Inventory</title>
+  <link rel="stylesheet" href="viewer.css">
+  <script type="module" src="viewer.js"></script>
+</head>
+<body>
+  <div id="backdrop"><img id="shot" alt=""></div>
+  <div id="vignette"></div>
+
+  <div id="stage">
+    <div id="lift">
+      <div id="zoom">
+        <div id="item">
+          <div class="face front" data-normal="0,0,1">
+            <div class="content"></div>
+            <div class="grain"></div>
+            <div class="wear"></div>
+            <div class="light"></div>
+          </div>
+          <div class="face back" data-normal="0,0,-1">
+            <div class="content"></div>
+            <div class="grain"></div>
+            <div class="wear"></div>
+            <div class="light"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="veil"></div>
+  <div id="grain"></div>
+
+  <div id="message" hidden></div>
+
+  <div id="reader" hidden>
+    <div id="reader-scroll" tabindex="-1">
+      <article id="reader-body"></article>
+    </div>
+    <div id="pager" hidden>
+      <button class="prev" aria-label="Página anterior"></button>
+      <span class="count"></span>
+      <button class="next" aria-label="Página siguiente"></button>
+    </div>
+  </div>
+
+  <h1 id="title"><span></span></h1>
+  <div id="hints"></div>
+</body>
+</html>

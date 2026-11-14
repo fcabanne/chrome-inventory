@@ -1,0 +1,424 @@
+@font-face {
+  font-family: "Lora";
+  font-weight: 400;
+  font-display: block;
+  src: url("vendor/fonts/lora-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Lora";
+  font-weight: 400;
+  font-display: block;
+  src: url("vendor/fonts/lora-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Lora";
+  font-weight: 600;
+  font-display: block;
+  src: url("vendor/fonts/lora-latin-600-normal.woff2") format("woff2");
+}
+
+:root {
+  --ink: #e9e3d6;
+  --ink-dim: #9a9486;
+  --paper: #e6dfce;
+  --serif: "Lora", Georgia, "Times New Roman", serif;
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.85), 0 0 14px rgba(0, 0, 0, 0.55);
+  --rise: 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  --drop: 380ms cubic-bezier(0.55, 0, 0.9, 0.4);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--serif);
+  user-select: none;
+}
+
+body.standalone { background: #000; }
+
+/* ---------- Mundo congelado ---------- */
+
+#backdrop {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+body.has-shot #backdrop { opacity: 1; }
+body:not(.has-shot) #backdrop { transition: opacity 450ms ease; }
+body.frozen:not(.has-shot) #backdrop { opacity: 0.93; }
+
+#shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(1) saturate(1) contrast(1) blur(0);
+  transition: filter 500ms ease, transform 500ms ease;
+}
+/* Muy desenfocado, casi sin color y con los negros aplastados. El scale tapa los bordes del blur. */
+body.frozen #shot {
+  filter: brightness(0.4) saturate(0.45) contrast(1.25) blur(7px);
+  transform: scale(1.05);
+}
+
+/* Tinte frío sobre la captura. */
+#backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 12, 11, 0.4);
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+body.frozen #backdrop::after { opacity: 1; }
+
+/* Viñeta fuerte más dos franjas negras, arriba y abajo. */
+#vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.95) 0,
+      rgba(0, 0, 0, 0.6) 10vh,
+      transparent 24vh,
+      transparent 72vh,
+      rgba(0, 0, 0, 0.65) 88vh,
+      rgba(0, 0, 0, 0.96) 100%
+    ),
+    radial-gradient(ellipse at center, transparent 28%, rgba(0, 0, 0, 0.85) 100%);
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+body.frozen #vignette { opacity: 1; }
+
+/* Grano de película. Es ruido gris neutro mezclado en "soft-light": el efecto es
+   proporcional al brillo de lo que hay debajo, así que casi desaparece en los negros
+   y se nota en los medios tonos y en el ítem, como el grano de verdad. Además se
+   mueve unas pocas veces por segundo: quieto parece una textura pegada a la pantalla. */
+#grain {
+  position: fixed;
+  inset: -128px;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='2.4 0 0 0 -0.7 2.4 0 0 0 -0.7 2.4 0 0 0 -0.7 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0;
+  transition: opacity 500ms ease;
+  animation: grain 1.6s steps(1) infinite;
+}
+body.frozen #grain { opacity: 0.36; }
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  12% { transform: translate(-71px, 43px); }
+  25% { transform: translate(38px, -97px); }
+  37% { transform: translate(-112px, -29px); }
+  50% { transform: translate(64px, 88px); }
+  62% { transform: translate(-23px, -64px); }
+  75% { transform: translate(101px, 17px); }
+  87% { transform: translate(-54px, 109px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #grain { animation: none; }
+}
+
+body.leaving #shot { filter: brightness(1) saturate(1) contrast(1) blur(0); transform: none; transition-duration: 380ms; }
+body.leaving :is(#vignette, #grain) { opacity: 0; transition-duration: 380ms; }
+body.leaving #backdrop::after { opacity: 0; transition-duration: 380ms; }
+body.leaving:not(.has-shot) #backdrop { opacity: 0; }
+
+/* ---------- Ítem ---------- */
+
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1600px;
+  cursor: grab;
+}
+#stage.dragging { cursor: grabbing; }
+
+#lift, #zoom, #item { transform-style: preserve-3d; }
+
+#lift {
+  transform: translateY(105vh) scale(0.94);
+  transition: transform var(--rise);
+}
+body.open #lift { transform: none; }
+body.leaving #lift { transform: translateY(105vh) scale(0.94); transition: transform var(--drop); }
+
+#zoom { transition: transform 140ms ease-out; }
+
+#item { position: relative; }
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+.face.back { transform: rotateY(180deg); }
+
+.face .content,
+.face .grain,
+.face .wear,
+.face .light {
+  position: absolute;
+  inset: 0;
+}
+.face .content > * { display: block; width: 100%; height: 100%; pointer-events: none; -webkit-user-drag: none; }
+.face.back .content { opacity: 0.1; transform: scaleX(-1); filter: blur(0.6px); }
+
+.grain {
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.face.photo .grain { opacity: 0.08; }
+
+/* Desgaste sutil: dos dobleces (hoja doblada en cuatro), bordes manoseados y tono
+   desparejo. Las posiciones (--fx, --fy, --s1, --s2) salen del nombre del archivo. */
+.wear {
+  pointer-events: none;
+  box-shadow: inset 0 0 34px rgba(70, 48, 14, 0.2), inset 0 0 5px rgba(40, 26, 6, 0.28);
+  background:
+    linear-gradient(90deg, transparent calc(var(--fx, 50%) - 5px), rgba(0, 0, 0, 0.07) calc(var(--fx, 50%) - 1px), rgba(255, 255, 255, 0.2) var(--fx, 50%), transparent calc(var(--fx, 50%) + 6px)),
+    linear-gradient(transparent calc(var(--fy, 50%) - 5px), rgba(0, 0, 0, 0.07) calc(var(--fy, 50%) - 1px), rgba(255, 255, 255, 0.2) var(--fy, 50%), transparent calc(var(--fy, 50%) + 6px)),
+    radial-gradient(ellipse 45% 30% at var(--s1, 20% 80%), rgba(130, 95, 30, 0.1), transparent),
+    radial-gradient(ellipse 35% 40% at var(--s2, 85% 15%), rgba(110, 80, 25, 0.08), transparent);
+}
+/* En las fotos solo los bordes: cualquier marca encima de la imagen parece un filtro. */
+.face.photo .wear { background: none; }
+
+/* Luz cálida fija desde arriba a la izquierda; --dim la oscurece según hacia dónde mire la cara.
+   La última capa baja un poco el blanco del papel para que no encandile en la escena oscura. */
+.light {
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(0, 0, 0, var(--dim, 0)), rgba(0, 0, 0, var(--dim, 0))),
+    linear-gradient(135deg, rgba(255, 236, 200, 0.14) 0%, transparent 42%, rgba(16, 8, 0, 0.36) 100%),
+    linear-gradient(rgba(38, 28, 10, 0.16), rgba(38, 28, 10, 0.16));
+}
+
+/* ---------- Título ---------- */
+
+#title {
+  position: fixed;
+  top: 9.5vh;
+  left: 0;
+  right: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3vh;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 500ms ease 300ms;
+}
+#title::before {
+  content: "";
+  width: 18vw;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(233, 227, 214, 0.32), transparent);
+}
+#title span {
+  max-width: 72vw;
+  /* El espaciado deja aire a la derecha de la última letra: se compensa a la izquierda. */
+  padding-left: 0.32em;
+  font-size: clamp(15px, 2.3vh, 28px);
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: var(--shadow);
+}
+body.open #title { opacity: 1; }
+body.leaving #title { opacity: 0; transition-delay: 0ms; transition-duration: 150ms; }
+/* "Ver" usa toda la pantalla: el título se corre. */
+body:has(#reader.visible #reader-body.flat) #title { opacity: 0; transition-delay: 0ms; }
+
+/* ---------- Mensajes ---------- */
+
+#message {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+  pointer-events: none;
+  text-shadow: var(--shadow);
+}
+#message p { margin: 0 0 12px; max-width: 560px; line-height: 1.7; letter-spacing: 0.04em; }
+#message .title { font-size: 22px; letter-spacing: 0.1em; }
+#message .detail { color: var(--ink-dim); font-size: 15px; }
+
+/* ---------- Modo lectura ---------- */
+
+/* Velo oscuro entre el ítem y el texto; el grano queda por encima del velo. */
+#veil {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+body:has(#reader.visible) #veil { opacity: 1; }
+
+#reader {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+#reader.visible { opacity: 1; }
+
+#reader-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  outline: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+#reader-body {
+  color: #f1ede3;
+  text-shadow: var(--shadow);
+  transform: translateY(10px);
+  transition: transform 280ms ease;
+}
+#reader.visible #reader-body { transform: none; }
+
+/* Texto: pantallas del alto disponible, sin scroll. El texto fluye en columnas del
+   ancho del bloque y se muestra de a una (--page). */
+#reader-scroll:has(.paged) { overflow: hidden; }
+#reader-body.paged {
+  position: absolute;
+  top: 27vh;
+  bottom: 22vh;
+  left: 0;
+  right: 0;
+  width: min(33em, 84vw);
+  margin: 0 auto;
+  overflow: hidden;
+  font-size: clamp(17px, 2.55vh, 32px);
+  line-height: 1.75;
+  letter-spacing: 0.045em;
+  user-select: text;
+}
+.paged .flow {
+  --gap: 6em;
+  height: 100%;
+  column-count: 1;
+  column-gap: var(--gap);
+  column-fill: auto;
+  orphans: 2;
+  widows: 2;
+  transform: translateX(calc(var(--page, 0) * -1 * (100% + var(--gap))));
+  transition: opacity 130ms ease;
+}
+.paged .flow.turning { opacity: 0; }
+.paged p { margin: 0 0 1.75em; overflow-wrap: anywhere; }
+.paged p:last-child { margin-bottom: 0; }
+
+#pager {
+  position: absolute;
+  left: 50%;
+  bottom: 12.5vh;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4.2em;
+  font-size: clamp(13px, 1.95vh, 24px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: var(--shadow);
+  font-variant-numeric: lining-nums;
+}
+#pager button {
+  all: unset;
+  padding: 0.7em;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+#pager button::before {
+  content: "";
+  display: block;
+  border: 0.38em solid transparent;
+}
+#pager .prev::before { border-left-width: 0; border-right: 0.62em solid var(--ink); }
+#pager .next::before { border-right-width: 0; border-left: 0.62em solid var(--ink); }
+#pager button:disabled { opacity: 0.28; cursor: default; }
+
+/* "Ver": página o imagen plana, para escaneos y fotos */
+#reader-body.flat { padding: 8vh 24px 18vh; display: grid; justify-items: center; }
+#reader-body.flat > * { max-width: min(92vw, 1100px); width: 100%; height: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6); }
+#reader-body.flat img { width: auto; }
+
+/* ---------- Barra de atajos ---------- */
+
+#hints {
+  position: fixed;
+  left: 50%;
+  bottom: 4vh;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 10px 72px;
+  white-space: nowrap;
+  font-size: 18px;
+  letter-spacing: 0.07em;
+  color: #cfc9bb;
+  text-shadow: var(--shadow);
+  opacity: 0;
+  transition: opacity 300ms ease 250ms;
+}
+body.open #hints { opacity: 1; }
+body.leaving #hints { opacity: 0; transition-delay: 0ms; transition-duration: 150ms; }
+
+.hint { display: flex; align-items: center; gap: 9px; }
+.hint .keys { display: flex; align-items: center; gap: 4px; }
+
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 5px;
+  font: 600 11px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0;
+  text-shadow: none;
+  color: #1f1d19;
+  background: linear-gradient(#dedacf, #b3aea2);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.22), 0 2px 0 #5d594f, 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.mouse { width: 16px; height: 24px; display: block; }
+.mouse .body { fill: none; stroke: #cfc9bb; stroke-width: 1.6; }
+.mouse .button { fill: #cfc9bb; }
+.mouse .wheel { stroke: #cfc9bb; stroke-width: 2.4; stroke-linecap: round; }

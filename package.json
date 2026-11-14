@@ -1,0 +1,16 @@
+{
+  "name": "inventory-chrome",
+  "version": "1.0.0",
+  "description": "Extensión de Chrome para examinar tus descargas de PDF e imágenes",
+  "scripts": {
+    "vendor": "node scripts-vendor.cjs"
+  },
+  "keywords": [],
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@fontsource/lora": "^5.3.0",
+    "pdfjs-dist": "^4.10.38"
+  },
+  "private": true
+}

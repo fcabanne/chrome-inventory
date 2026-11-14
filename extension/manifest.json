@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Inventory",
+  "version": "0.1.0",
+  "description": "Examiná tus descargas de PDF e imágenes como objetos que podés girar y leer, con un clima oscuro y silencioso.",
+  "permissions": [
+    "downloads",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "viewer.html",
+        "viewer.css",
+        "*.js",
+        "vendor/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
